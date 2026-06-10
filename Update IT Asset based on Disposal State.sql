@@ -10,7 +10,7 @@ BEGIN
   SELECT prv_code, prv_property, prv_value
   INTO vPRCode, vPRProperty, vPRValue
   FROM r5propertyvalues
-  WHERE ROWID = :ROWID AND prv_property = 'IT-DISP';
+  WHERE ROWID = :ROWID;
   
   vPRCode := TRIM(REPLACE(vPRCode,'#IT',''));
   
@@ -19,7 +19,7 @@ BEGIN
   FROM r5contactrecords 
   WHERE ctr_code =  vPRCode;
  
-	IF vPRValue = 'Picked Up - PCL Disposal' AND vSRType = 'ITDF' AND vSRDispType = 'Disposal' 
+	IF vPRValue = 'Picked Up - PCL Disposal'
   THEN
         UPDATE r5objects o
            SET o.OBJ_UDFCHAR35 = 'PICKEDUP',
