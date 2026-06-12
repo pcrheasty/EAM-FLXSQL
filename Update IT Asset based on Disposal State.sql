@@ -20,15 +20,18 @@ BEGIN
   WHERE ctr_code =  vPRCode;
  
 	IF vPRValue = 'Picked Up - PCL Disposal'
-  THEN
-        UPDATE r5objects o
-           SET o.OBJ_UDFCHAR35 = 'PICKEDUP',
-               o.OBJ_UDFCHAR38 = 'DISPOSE'
-         WHERE o.obj_udfchar24 = 'CPU' AND o.OBJ_CODE IN (
-               SELECT d.DESP_ASSETID
-                 FROM u5itamdespequip d
-                WHERE d.DESP_SRCODE = vSRCode
-           );
-    END IF;
+THEN
+      UPDATE r5objects o
+         SET o.OBJ_UDFCHAR35 = 'PICKEDUP',
+             o.OBJ_UDFCHAR38 = CASE
+                                 WHEN o.obj_udfchar24 = 'CPU' THEN 'DISPOSE'
+                                 ELSE o.OBJ_UDFCHAR38
+                               END
+       WHERE o.OBJ_CODE IN (
+             SELECT d.DESP_ASSETID
+               FROM u5itamdespequip d
+              WHERE d.DESP_SRCODE = vSRCode
+         );
+END IF;
 
 END;
