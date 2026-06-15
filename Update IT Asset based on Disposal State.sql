@@ -11,27 +11,33 @@ BEGIN
   INTO vPRCode, vPRProperty, vPRValue
   FROM r5propertyvalues
   WHERE ROWID = :ROWID;
-  
-  vPRCode := TRIM(REPLACE(vPRCode,'#IT',''));
-  
-  SELECT ctr_code
-  INTO vSRCode
-  FROM r5contactrecords 
-  WHERE ctr_code =  vPRCode;
- 
-	IF vPRValue = 'Picked Up - PCL Disposal'
-THEN
-      UPDATE r5objects o
-         SET o.OBJ_UDFCHAR35 = 'PICKEDUP',
-             o.OBJ_UDFCHAR38 = CASE
-                                 WHEN o.obj_udfchar24 = 'CPU' THEN 'DISPOSE'
-                                 ELSE o.OBJ_UDFCHAR38
-                               END
-       WHERE o.OBJ_CODE IN (
-             SELECT d.DESP_ASSETID
-               FROM u5itamdespequip d
-              WHERE d.DESP_SRCODE = vSRCode
-         );
-END IF;
+
+	IF vPRCode LIKE '%#IT'
+	   AND vPRValue = 'Picked Up - PCL Disposal'
+	THEN
+      BEGIN
+        SELECT ctr_code
+        INTO vSRCode
+        FROM r5contactrecords
+        WHERE ctr_code||'#IT' = vPRCode;
+
+        UPDATE r5objects o
+           SET o.OBJ_UDFCHAR35 = 'PICKEDUP',
+               o.OBJ_UDFCHAR38 = CASE
+                                   WHEN o.obj_udfchar24 = 'CPU' THEN 'DISPOSE'
+                                   ELSE o.OBJ_UDFCHAR38
+                                 END
+         WHERE o.OBJ_CODE IN (
+               SELECT d.DESP_ASSETID
+                 FROM u5itamdespequip d
+                WHERE d.DESP_SRCODE = vSRCode
+           );
+      EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+          NULL;  -- Contact record not found, allow update to proceed
+        WHEN OTHERS THEN
+          RAISE;  -- Re-raise unexpected errors
+      END;
+	END IF;
 
 END;
