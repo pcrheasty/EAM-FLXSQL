@@ -34,9 +34,9 @@ BEGIN
            );
       EXCEPTION
         WHEN NO_DATA_FOUND THEN
-          NULL;  -- Contact record not found, allow update to proceed
+          NULL; 
         WHEN OTHERS THEN
-          RAISE;  -- Re-raise unexpected errors
+          RAISE;
       END;
 	END IF;
 
