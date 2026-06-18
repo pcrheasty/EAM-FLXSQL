@@ -1,5 +1,5 @@
 SELECT :1||COALESCE(
-  (SELECT MIN(num) + 1 
+  (SELECT LPAD(MIN(num) + 1, 3, '0')
    FROM (SELECT to_number(regexp_replace(USTA_CODE, '[^0-9]', '')) as num
          FROM U5ITAMSTATIONS
          WHERE USTA_CODE LIKE :1||'%') t1
@@ -9,7 +9,7 @@ SELECT :1||COALESCE(
    AND EXISTS (SELECT 1 FROM U5ITAMSTATIONS 
                WHERE to_number(regexp_replace(USTA_CODE, '[^0-9]', '')) = t1.num
                AND USTA_CODE LIKE :1||'%')),
-  (SELECT MAX(to_number(regexp_replace(USTA_CODE, '[^0-9]', ''))) + 1
+  (SELECT LPAD(MAX(to_number(regexp_replace(USTA_CODE, '[^0-9]', ''))) + 1, 3, '0')
    FROM U5ITAMSTATIONS
    WHERE USTA_CODE LIKE :1||'%')
 )
